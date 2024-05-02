@@ -21,6 +21,21 @@ public class TodoRepository {
                 .findFirst();
     }
 
+    void create(Todo todo) {
+        todos.add(todo);
+    }
+
+    void update(Todo todo, Integer id) {
+        Optional<Todo> existingTodo = findById(id);
+        if(existingTodo.isPresent()) {
+            todos.set(todos.indexOf(existingTodo.get()), todo);
+        }
+    }
+
+    void delete(Integer id) {
+        todos.removeIf(todo -> todo.id().equals(id));
+    }
+
     @PostConstruct
     private void init() {
         todos.add(new Todo(
