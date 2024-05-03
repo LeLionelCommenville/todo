@@ -1,7 +1,9 @@
 package dev.lionel.todo.todo;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,56 +11,56 @@ import java.util.Optional;
 
 @Repository
 public class TodoRepository {
-    private List<Todo> todos = new ArrayList<>();
 
-    List<Todo> findAll() {
-        return todos;
+    private final JdbcClient jdbcClient;
+
+    public TodoRepository(JdbcClient jdbcClient) {
+        this.jdbcClient = jdbcClient;
     }
 
-    Optional<Todo> findById(Integer id) {
-        return todos.stream()
-                .filter(todo -> todo.id() == id)
-                .findFirst();
+    public List<Todo> findAll() {
+        return jdbcClient.sql("select * from TODO")
+                .query(Todo.class).list();
     }
 
-    void create(Todo todo) {
-        todos.add(todo);
+    public Optional<Todo> findById(Integer id) {
+        return jdbcClient.sql("SELECT * FROM TODO WHERE id = :id")
+                .param("id", id)
+                .query(Todo.class)
+                .optional();
     }
 
-    void update(Todo todo, Integer id) {
-        Optional<Todo> existingTodo = findById(id);
-        if(existingTodo.isPresent()) {
-            todos.set(todos.indexOf(existingTodo.get()), todo);
-        }
+    public void create(Todo todo) {
+        var updated = jdbcClient.sql("INSERT INTO TODO(id, title, content, completion, done) values(?,?,?,?,?)")
+                .params(List.of(todo.id(), todo.title(), todo.content(), todo.completion(), todo.done()))
+                .update();
+
+        Assert.state(updated == 1, "failled to create a new todo " + todo.title());
     }
 
-    void delete(Integer id) {
-        todos.removeIf(todo -> todo.id().equals(id));
+    public void update(Todo todo, Integer id) {
+        var updated = jdbcClient.sql("update todo set title =  ?, content = ?, completion = ?, done = ? where id = ? ")
+                .params(List.of(todo.title(), todo.content(), todo.completion(), todo.done(), id))
+                .update();
+
+        Assert.state(updated == 1, "failled to update the todo " + todo.title());
+
     }
 
-    @PostConstruct
-    private void init() {
-        todos.add(new Todo(
-                1,
-                "Create a Todo API",
-                "We need a Todo Service for managing the todo list with some functions",
-                50,
-                 false
-        ));
-        todos.add(new Todo(
-                2,
-                "Create a Todo API PART2",
-                "We need a Todo Service for managing the todo list with some functions part 2",
-                50,
-                false
-        ));
-        todos.add(new Todo(
-                3,
-                "Create a Todo API PART3",
-                "We need a Todo Service for managing the todo list with some functions part 2",
-                20,
-                true
-        ));
+    public void delete(Integer id) {
+        var updated = jdbcClient.sql("delete from TODO where id = :id")
+                .param("id", id)
+                .update();
+
+        Assert.state(updated == 1, "failled delete todo " + id);
+
     }
+
+    public void saveAll(List<Todo> todos) {
+        todos.stream().forEach(this::create);
+    }
+
+    public int count() { return jdbcClient.sql("select * from TODO").query().listOfRows().size(); }
+
 
 }

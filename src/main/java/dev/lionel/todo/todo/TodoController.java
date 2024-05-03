@@ -17,6 +17,7 @@ public class TodoController {
     public TodoController(TodoRepository todoRepository) {
         this.todoRepository = todoRepository;
     }
+
     @GetMapping("")
     List<Todo> findAll() {
         return todoRepository.findAll();
