@@ -1,4 +1,5 @@
 package dev.lionel.todo.todo;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,14 +33,14 @@ public class TodoController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
-    void create(@RequestBody Todo todo) {
+    void create(@Valid @RequestBody Todo todo) {
         todoRepository.create(todo);
     }
 
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
-    void update(@RequestBody Todo todo, @PathVariable Integer id) {
+    void update(@Valid @RequestBody Todo todo, @PathVariable Integer id) {
         todoRepository.update(todo, id);
     }
 
