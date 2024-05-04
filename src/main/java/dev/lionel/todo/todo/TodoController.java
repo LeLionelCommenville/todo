@@ -35,19 +35,24 @@ public class TodoController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
     void create(@Valid @RequestBody Todo todo) {
-        todoRepository.create(todo);
+        todoRepository.save(todo);
     }
 
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
     void update(@Valid @RequestBody Todo todo, @PathVariable Integer id) {
-        todoRepository.update(todo, id);
+        todoRepository.save(todo);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     void delete(@PathVariable Integer id) {
-        todoRepository.delete(id);
+        todoRepository.delete(todoRepository.findById(id).get());
+    }
+
+    @GetMapping("done/{done}")
+    List<Todo> findByLocation(@PathVariable Boolean done) {
+        return todoRepository.findAllByDone(done);
     }
 }

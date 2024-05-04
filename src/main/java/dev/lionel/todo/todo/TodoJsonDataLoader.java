@@ -14,11 +14,11 @@ import java.io.InputStream;
 public class TodoJsonDataLoader implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(TodoJsonDataLoader.class);
-    private final TodoRepository todoRepository;
+    private final JdbcClientTodoRepository todoRepository;
     private final ObjectMapper objectMapper;
 
 
-    public TodoJsonDataLoader(TodoRepository todoRepository, ObjectMapper objectMapper) {
+    public TodoJsonDataLoader(JdbcClientTodoRepository todoRepository, ObjectMapper objectMapper) {
         this.todoRepository = todoRepository;
         this.objectMapper = objectMapper;
     }
@@ -28,7 +28,7 @@ public class TodoJsonDataLoader implements CommandLineRunner {
         if(todoRepository.count() == 0) {
             try(InputStream inputStream = TypeReference.class.getResourceAsStream("/data/todos.json")) {
                 Todos allTodos = objectMapper.readValue(inputStream, Todos.class);
-                log.info("Reading {} runs from JSON data and saving to in memory collection", allTodos.todos().size());
+                log.info("Reading {} runs from JSON data and saving it in a database", allTodos.todos().size());
                 todoRepository.saveAll(allTodos.todos());
             } catch (IOException e) {
                 throw new RuntimeException("Faied to read JSON data", e);

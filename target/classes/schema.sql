@@ -4,5 +4,6 @@ CREATE TABLE IF NOT EXISTS Todo (
     content TEXT NOT NULL,
     completion INT NOT NULL,
     done BOOLEAN,
+    version INT,
     PRIMARY KEY (id)
 );
