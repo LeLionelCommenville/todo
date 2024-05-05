@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS Todo;
+
 CREATE TABLE IF NOT EXISTS Todo (
     id INT NOT NULL,
     title varchar(256) NOT NULL,

@@ -18,11 +18,9 @@ public class TodoApplication {
 	}
 
 	@Bean
-	CommandLineRunner runner(JdbcClientTodoRepository todoRepository) {
+	CommandLineRunner runner() {
 		return args -> {
 			log.info("welcome back");
-//			Todo todo = new Todo(1, "todo title 1", "todo content 1",10, false);
-//			todoRepository.create(todo);
 		};
 	}
 
